@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Design & Administration Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(4px);
+            background-color: #f1f5f9;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="quiz-container" class="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">Database Design & Administration</h1>
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between mt-2 text-sm text-slate-500 font-medium">
+                <span>Question <span id="current-count">1</span> of 35</span>
+                <span id="score-display">Score: 0</span>
+            </div>
+        </div>
+
+        <!-- Question Section -->
+        <div id="question-box">
+            <h2 id="question-text" class="text-lg md:text-xl font-semibold text-slate-700 mb-6 leading-relaxed">
+                Loading question...
+            </h2>
+
+            <div id="options-container" class="space-y-3">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <!-- Feedback & Navigation -->
+        <div id="feedback-area" class="mt-8 hidden">
+            <div id="feedback-message" class="p-4 rounded-lg mb-4 font-medium"></div>
+            <button id="next-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-blue-200">
+                Next Question
+            </button>
+        </div>
+
+        <!-- Result Screen (Hidden by default) -->
+        <div id="result-screen" class="hidden text-center py-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 text-blue-600 rounded-full mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+            <p id="final-score" class="text-lg text-slate-600 mb-8 font-medium"></p>
+            <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-colors">
+                Retry Quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "What is defined as an integrated collection of stored data that is centrally managed and controlled?",
+                a: ["Database", "DBMS", "Operating System", "Schema"],
+                correct: 0
+            },
+            {
+                q: "A DBMS is typically purchased and installed separately from what other software component?",
+                a: ["Application Programs", "Hardware Drivers", "Operating Systems", "Cloud Storage"],
+                correct: 2
+            },
+            {
+                q: "Usually, when referring to a 'database', it means both the database data and the ______.",
+                a: ["Network", "DBMS", "Hardware", "User Interface"],
+                correct: 1
+            },
+            {
+                q: "Which part of the database data contains the actual data for the problem domain?",
+                a: ["Schema data", "Metadata", "Application domain data", "Direct SQL processor"],
+                correct: 2
+            },
+            {
+                q: "What is often referred to as 'metadata' or 'data about the data'?",
+                a: ["Application domain data", "Transaction logs", "The Schema", "Direct query records"],
+                correct: 2
+            },
+            {
+                q: "Which of the following is NOT typically included in the schema data?",
+                a: ["Organization into tables", "Associations among tables", "Individual data item details", "The actual customer sale amounts"],
+                correct: 3
+            },
+            {
+                q: "What is defined as a collection of steps to help design, create, implement, and maintain a business's data management systems?",
+                a: ["Database design", "System Analysis", "Programming", "Data Mining"],
+                correct: 0
+            },
+            {
+                q: "The main purpose of database design is to produce ________ models of designs for the proposed system.",
+                a: ["Conceptual and Abstract", "Physical and Logical", "Internal and External", "Static and Dynamic"],
+                correct: 1
+            },
+            {
+                q: "Who usually assists the project team in database design to ensure consistency and avoid disruptions?",
+                a: ["Hardware technicians", "Permanent database staff", "End users", "Quality Assurance team"],
+                correct: 1
+            },
+            {
+                q: "Which role has primary responsibility for the structure and integrity of the data itself?",
+                a: ["Database Administrator (DBA)", "Data Administrator (DA)", "Network Administrator", "Systems Analyst"],
+                correct: 1
+            },
+            {
+                q: "Which role maintains the database after deployment and manages its safety and operation?",
+                a: ["Data Administrator (DA)", "Software Engineer", "Database Administrator (DBA)", "Project Manager"],
+                correct: 2
+            },
+            {
+                q: "Naming standards, definition standards, and data typing standards fall under which DA responsibility?",
+                a: ["Data standards", "Data use", "Data quality", "Data environment"],
+                correct: 0
+            },
+            {
+                q: "Ownership, accessibility, and confidentiality of data fall under which DA responsibility?",
+                a: ["Data quality", "Data use", "Data standards", "Data recovery"],
+                correct: 1
+            },
+            {
+                q: "Which of the following is a specific responsibility of a Database Administrator (DBA)?",
+                a: ["Defining data naming standards", "Managing a multiple DBMS environment", "Establishing data ownership", "Determining data relevancy"],
+                correct: 1
+            },
+            {
+                q: "Monitoring and maintaining high levels of performance is a responsibility of the:",
+                a: ["Data Administrator", "Database Administrator", "End User", "Application Programmer"],
+                correct: 1
+            },
+            {
+                q: "What does RDBMS stand for?",
+                a: ["Relational Database Management System", "Regional Database Main System", "Reliable Data Management Service", "Root Database Maintenance System"],
+                correct: 0
+            },
+            {
+                q: "In an RDBMS, data is organized into structures called tables or ______.",
+                a: ["Tuples", "Relations", "Attributes", "Schemas"],
+                correct: 1
+            },
+            {
+                q: "What is the formal term for a row in a database table?",
+                a: ["Attribute", "Entity", "Field", "Tuple"],
+                correct: 3
+            },
+            {
+                q: "In a table, what does each column represent?",
+                a: ["A record", "A tuple", "An attribute", "A primary key"],
+                correct: 2
+            },
+            {
+                q: "What represents a single data value in a relational database?",
+                a: ["A whole row", "A whole column", "The intersection of a row and column", "The table name"],
+                correct: 2
+            },
+            {
+                q: "An attribute or set of attributes whose values occur only once in all rows is called a:",
+                a: ["Tuple", "Key", "Relation", "Domain"],
+                correct: 1
+            },
+            {
+                q: "Which key type is defined as an attribute or combination that uniquely identifies any row, including redundant attributes?",
+                a: ["Superkey", "Candidate Key", "Primary Key", "Secondary Key"],
+                correct: 0
+            },
+            {
+                q: "A superkey without any unnecessary attributes is called a:",
+                a: ["Primary Key", "Foreign Key", "Candidate Key", "Secondary Key"],
+                correct: 2
+            },
+            {
+                q: "Which key is selected to uniquely identify all other values in a row and cannot contain null entries?",
+                a: ["Foreign Key", "Primary Key", "Secondary Key", "Superkey"],
+                correct: 1
+            },
+            {
+                q: "A ______ key is used strictly for data retrieval purposes.",
+                a: ["Primary", "Secondary", "Foreign", "Candidate"],
+                correct: 1
+            },
+            {
+                q: "Which key type links tables by matching the primary key of another table?",
+                a: ["Superkey", "Foreign Key", "Secondary Key", "Candidate Key"],
+                correct: 1
+            },
+            {
+                q: "What technique logs updates with audit information like user ID, date, and time?",
+                a: ["Encryption", "Transaction logging", "Data indexing", "Normalization"],
+                correct: 1
+            },
+            {
+                q: "What are the two main objectives of transaction logging?",
+                a: ["Speed and Efficiency", "Storage and Sorting", "Audit/Fraud prevention and Recovery", "Formatting and Indexing"],
+                correct: 2
+            },
+            {
+                q: "A ______ is a piece of work with several steps that must all be completed to be valid.",
+                a: ["Query", "Transaction", "Macro", "Schema update"],
+                correct: 1
+            },
+            {
+                q: "What must happen if a transaction stops or fails halfway through?",
+                a: ["The database stays partially updated", "The user is banned", "Prior changes must be undone (returned to original condition)", "The system shuts down"],
+                correct: 2
+            },
+            {
+                q: "What technique prevents multiple users from damaging each other's data when accessing the same information?",
+                a: ["Password protection", "Database lock", "Firewalls", "Data compression"],
+                correct: 1
+            },
+            {
+                q: "A shared lock is also known as a:",
+                a: ["Write lock", "Write-Once lock", "Read lock", "Admin lock"],
+                correct: 2
+            },
+            {
+                q: "What does an exclusive lock allow a user application to do?",
+                a: ["Only read the data", "Read and rewrite the data", "Share data with other users", "None of the above"],
+                correct: 1
+            },
+            {
+                q: "If an exclusive lock is issued, other users:",
+                a: ["Can still read the data", "Can only update the data", "Cannot even read the data", "Can share the lock"],
+                correct: 2
+            },
+            {
+                q: "A shared lock allows other users to read the data, but NOT to:",
+                a: ["View it", "Sort it", "Update it", "Search it"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let hasAnswered = false;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentCount = document.getElementById('current-count');
+        const scoreDisplay = document.getElementById('score-display');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const nextBtn = document.getElementById('next-btn');
+        const quizBox = document.getElementById('question-box');
+        const resultScreen = document.getElementById('result-screen');
+
+        function loadQuestion() {
+            hasAnswered = false;
+            const q = quizData[currentQuestion];
+            
+            // Update progress
+            progressBar.style.width = `${((currentQuestion) / quizData.length) * 100}%`;
+            currentCount.innerText = currentQuestion + 1;
+            
+            questionText.innerText = q.q;
+            optionsContainer.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            
+            q.a.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-slate-200 font-medium text-slate-700 bg-white";
+                button.innerText = option;
+                button.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (hasAnswered) return;
+            hasAnswered = true;
+            
+            const q = quizData[currentQuestion];
+            const options = optionsContainer.children;
+            
+            if (selectedIndex === q.correct) {
+                score++;
+                options[selectedIndex].classList.add('correct');
+                feedbackMessage.innerText = "Correct! Well done.";
+                feedbackMessage.className = "p-4 rounded-lg mb-4 font-medium bg-green-100 text-green-700";
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                feedbackMessage.innerText = `Incorrect. The correct answer was: ${q.a[q.correct]}`;
+                feedbackMessage.className = "p-4 rounded-lg mb-4 font-medium bg-red-100 text-red-700";
+            }
+            
+            // Disable all buttons
+            for (let opt of options) {
+                opt.disabled = true;
+            }
+            
+            scoreDisplay.innerText = `Score: ${score}`;
+            feedbackArea.classList.remove('hidden');
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            quizBox.classList.add('hidden');
+            feedbackArea.classList.add('hidden');
+            progressBar.style.width = '100%';
+            resultScreen.classList.remove('hidden');
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            let rating = "";
+            if (percentage >= 90) rating = "Outstanding!";
+            else if (percentage >= 75) rating = "Great Job!";
+            else if (percentage >= 50) rating = "Good Effort!";
+            else rating = "Keep Studying!";
+
+            document.getElementById('final-score').innerText = `${rating} You scored ${score} out of ${quizData.length} (${percentage}%)`;
+        }
+
+        // Start
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
+
